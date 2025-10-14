@@ -1,0 +1,2 @@
+# pokerchart
+poker chart tanulashoz
