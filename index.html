@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Poker Charts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #a0a0a0;
+            font-weight: 500;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 25px;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .view {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .folder-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .folder-btn {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 30px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .folder-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .folder-btn:active::before {
+            opacity: 1;
+        }
+
+        .folder-btn:active {
+            transform: scale(0.97);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .folder-name {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            position: relative;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .chart-btn {
+            background: linear-gradient(135deg, rgba(52, 211, 153, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(52, 211, 153, 0.3);
+            border-radius: 16px;
+            padding: 25px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .chart-btn:active {
+            transform: scale(0.95);
+            background: linear-gradient(135deg, rgba(52, 211, 153, 0.25) 0%, rgba(16, 185, 129, 0.25) 100%);
+            border-color: rgba(52, 211, 153, 0.6);
+        }
+
+        .chart-position {
+            font-size: 26px;
+            font-weight: 800;
+            color: #34d399;
+            margin-bottom: 5px;
+        }
+
+        .chart-type {
+            font-size: 13px;
+            color: #a0a0a0;
+            font-weight: 600;
+        }
+
+        .subcategory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .subcategory-btn {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .subcategory-btn:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .subcategory-btn.active {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%);
+            border-color: rgba(251, 191, 36, 0.6);
+            color: #fbbf24;
+        }
+
+        .chart-display {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .chart-display.active {
+            display: flex;
+        }
+
+        .chart-display img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .close-btn:active {
+            transform: scale(0.9);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #666;
+            padding: 60px 20px;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="home-view" class="view active">
+            <header>
+                <h1>Poker Charts</h1>
+                <div class="subtitle">Válassz kategóriát</div>
+            </header>
+
+            <div class="folder-grid">
+                <div class="folder-btn" onclick="openFolder('rfi_vs')">
+                    <div class="folder-name">RFI VS</div>
+                </div>
+                <div class="folder-btn" onclick="openFolder('bb_def')">
+                    <div class="folder-name">BB DEF</div>
+                </div>
+                <div class="folder-btn" onclick="openFolder('ip_def')">
+                    <div class="folder-name">IP DEF</div>
+                </div>
+                <div class="folder-btn" onclick="openFolder('sb_def')">
+                    <div class="folder-name">SB DEF</div>
+                </div>
+                <div class="folder-btn" onclick="openFolder('ip_sqz')">
+                    <div class="folder-name">IP SQZ</div>
+                </div>
+                <div class="folder-btn" onclick="openFolder('sb_sqz')">
+                    <div class="folder-name">SB SQZ</div>
+                </div>
+                <div class="folder-btn" onclick="openFolder('bb_sqz')">
+                    <div class="folder-name">BB SQZ</div>
+                </div>
+                <div class="folder-btn" onclick="openFolder('cold4b')">
+                    <div class="folder-name">COLD 4B</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="rfi_vs-view" class="view">
+            <button class="back-btn" onclick="showHome()">← Vissza</button>
+            <div class="section-title">RFI VS</div>
+            <div class="chart-grid">
+                <div class="chart-btn" onclick="showChart('images/rfi_vs/utg_ip.png')">
+                    <div class="chart-position">UTG</div>
+                    <div class="chart-type">IP</div>
+                </div>
+                <div class="chart-btn" onclick="showChart('images/rfi_vs/utg_op.png')">
+                    <div class="chart-position">UTG</div>
+                    <div class="chart-type">OP</div>
+                </div>
+                <div class="chart-btn" onclick="showChart('images/rfi_vs/hj_ip.png')">
+                    <div class="chart-position">HJ</div>
+                    <div class="chart-type">IP</div>
+                </div>
+                <div class="chart-btn" onclick="showChart('images/rfi_vs/hj_op.png')">
+                    <div class="chart-position">HJ</div>
+                    <div class="chart-type">OP</div>
+                </div>
+                <div class="chart-btn" onclick="showChart('images/rfi_vs/co_ip.png')">
+                    <div class="chart-position">CO</div>
+                    <div class="chart-type">IP</div>
+                </div>
+                <div class="chart-btn" onclick="showChart('images/rfi_vs/co_op.png')">
+                    <div class="chart-position">CO</div>
+                    <div class="chart-type">OP</div>
+                </div>
+                <div class="chart-btn" onclick="showChart('images/rfi_vs/bu_ip.png')">
+                    <div class="chart-position">BU</div>
+                    <div class="chart-type">IP</div>
+                </div>
+                <div class="chart-btn" onclick="showChart('images/rfi_vs/sb_open.png')">
+                    <div class="chart-position">SB</div>
+                    <div class="chart-type">OPEN</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="bb_def-view" class="view">
+            <button class="back-btn" onclick="showHome()">← Vissza</button>
+            <div class="section-title">BB DEF</div>
+            <div class="subcategory-grid">
+                <div class="subcategory-btn" onclick="showSubcategory('bb_def_vs2')">VS 2BB</div>
+                <div class="subcategory-btn" onclick="showSubcategory('bb_def_vs25')">VS 2.5BB</div>
+                <div class="subcategory-btn" onclick="showSubcategory('bb_def_vs3')">VS 3BB</div>
+            </div>
+            <div id="bb_def_vs2" class="chart-grid" style="display: none;">
+                <div class="empty-message">Chartok ide jönnek később</div>
+            </div>
+            <div id="bb_def_vs25" class="chart-grid" style="display: none;">
+                <div class="empty-message">Chartok ide jönnek később</div>
+            </div>
+            <div id="bb_def_vs3" class="chart-grid" style="display: none;">
+                <div class="empty-message">Chartok ide jönnek később</div>
+            </div>
+        </div>
+
+        <div id="ip_def-view" class="view">
+            <button class="back-btn" onclick="showHome()">← Vissza</button>
+            <div class="section-title">IP DEF</div>
+            <div class="empty-message">Még nincsenek chartok</div>
+        </div>
+
+        <div id="sb_def-view" class="view">
+            <button class="back-btn" onclick="showHome()">← Vissza</button>
+            <div class="section-title">SB DEF</div>
+            <div class="empty-message">Még nincsenek chartok</div>
+        </div>
+
+        <div id="ip_sqz-view" class="view">
+            <button class="back-btn" onclick="showHome()">← Vissza</button>
+            <div class="section-title">IP SQZ</div>
+            <div class="empty-message">Még nincsenek chartok</div>
+        </div>
+
+        <div id="sb_sqz-view" class="view">
+            <button class="back-btn" onclick="showHome()">← Vissza</button>
+            <div class="section-title">SB SQZ</div>
+            <div class="empty-message">Még nincsenek chartok</div>
+        </div>
+
+        <div id="bb_sqz-view" class="view">
+            <button class="back-btn" onclick="showHome()">← Vissza</button>
+            <div class="section-title">BB SQZ</div>
+            <div class="empty-message">Még nincsenek chartok</div>
+        </div>
+
+        <div id="cold4b-view" class="view">
+            <button class="back-btn" onclick="showHome()">← Vissza</button>
+            <div class="section-title">COLD 4B</div>
+            <div class="empty-message">Még nincsenek chartok</div>
+        </div>
+    </div>
+
+    <div class="chart-display" id="chartDisplay">
+        <div class="close-btn" onclick="closeChart()">×</div>
+        <img id="chartImage" src="" alt="Chart">
+    </div>
+
+    <script>
+        function showHome() {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('home-view').classList.add('active');
+        }
+
+        function openFolder(folderId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(folderId + '-view').classList.add('active');
+        }
+
+        function showSubcategory(subcatId) {
+            document.querySelectorAll('#bb_def-view .chart-grid').forEach(g => g.style.display = 'none');
+            document.getElementById(subcatId).style.display = 'grid';
+            document.querySelectorAll('.subcategory-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function showChart(imagePath) {
+            document.getElementById('chartImage').src = imagePath;
+            document.getElementById('chartDisplay').classList.add('active');
+        }
+
+        function closeChart() {
+            document.getElementById('chartDisplay').classList.remove('active');
+        }
+
+        document.getElementById('chartDisplay').addEventListener('click', function(e) {
+            if (e.target === this || e.target.tagName === 'IMG') {
+                closeChart();
+            }
+        });
+    </script>
+</body>
+</html>
